@@ -109,26 +109,38 @@ const resetFilter = () => {
 
 
 const saveImage = () => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = previewImg.naturalWidth;
-    canvas.height = previewImg.naturalHeight;
-    
-    
-    ctx.filter = `brightness(${brightness}%) saturate(${saturation}%) invert(${inversion}%) grayscale(${grayscale}%)`;
-    ctx.translate(-canvas.width / 2, -canvas.height / 2,);
-    if(rotate !== 0) {
-        ctx.rotate(rotate * Math.PI / 180);
-    }
-    ctx.scale(flipHorizontal, flipVertical);
-    ctx.drawImage(previewImg, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
-
-    const link = document.createElement("a");
-    link.download = 'image.jpg';
-    link.href = canvas.toDataURL();
-    link.click();
-
-}
+    let canvas = document.createElement("canvas");
+    let ctx = canvas.getContext("2d");
+    let img = new Image();
+  
+    img.onload = function() {
+      let width = img.width;
+      let height = img.height;
+  
+      if (rotate === 90 || rotate === 270) {
+        // Si l'image a été tournée de 90 ou 270 degrés, inversez les dimensions
+        [width, height] = [height, width];
+      }
+  
+      canvas.width = width;
+      canvas.height = height;
+  
+      ctx.filter = `brightness(${brightness}%) saturate(${saturation}%) invert(${inversion}%) grayscale(${grayscale}%)`;
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      if (rotate !== 0) {
+        ctx.rotate((rotate * Math.PI) / 180);
+      }
+      ctx.scale(flipHorizontal, flipVertical);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+  
+      const link = document.createElement("a");
+      link.download = "image.jpg";
+      link.href = canvas.toDataURL("image/jpeg");
+      link.click();
+    };
+  
+    img.src = previewImg.src;
+  };
 
 
 fileInput.addEventListener("change", loadImage);
